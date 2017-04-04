@@ -71,7 +71,7 @@ class Player(pygame.sprite.Sprite):
 
 
         """
-        The old movement system. keeping aroudn just in case
+        The old movement system. keeping around just in case
         global jumping
         global jumptime
         if pressed_keys[K_SPACE]:
