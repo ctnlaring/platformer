@@ -53,7 +53,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.rect.left = block.rect.right
 
-        self.rect.y += self.change_y+1
+        self.rect.y += self.change_y+2
         hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
         for block in hitlist:
             if self.change_y >= 0:
@@ -199,7 +199,7 @@ while True:
             elif event.key == pygame.K_RIGHT:
                 player.changespeed(3, 0)
             elif event.key == pygame.K_SPACE:
-                player.changespeed(0, -3)
+                player.changespeed(0, -6)
             elif event.key == pygame.K_b:
                 block = Block(random.randint(0,550),random.randint(0,550))
                 blocks.add(block)
@@ -210,7 +210,7 @@ while True:
             elif event.key == pygame.K_RIGHT:
                 player.changespeed(-3, 0)
             elif event.key == pygame.K_SPACE:
-                player.changespeed(0, 3)
+                player.changespeed(0, 6)
         elif event.type == QUIT:
             sys.exit()
         elif event.type == ADDENEMY:
