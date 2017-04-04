@@ -45,6 +45,15 @@ class Player(pygame.sprite.Sprite):
         self.change_y += y
 
     def update(self, pressed_keys):
+        if self.rect.right < 0:
+            self.kill()
+        if self.rect.left > 768:
+            self.kill()
+        if self.rect.top > 720:
+            self.kill()
+        if self.rect.bottom < 0:
+            self.kill()
+
         self.rect.x += self.change_x
         hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
         for block in hitlist:
@@ -104,6 +113,15 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(
             center=(720,500))
     def update(self):
+        if self.rect.right < 0:
+            self.kill()
+        if self.rect.left > 768:
+            self.kill()
+        if self.rect.top > 720:
+            self.kill()
+        if self.rect.bottom < 0:
+            self.kill()
+
         global health
         global deaths
         self.rect.move_ip(-2,0)
@@ -116,6 +134,15 @@ class BigEnemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(
             center=(random.randint(0,550-32),0))
     def update(self):
+        if self.rect.right < 0:
+            self.kill()
+        if self.rect.left > 768:
+            self.kill()
+        if self.rect.top > 720:
+            self.kill()
+        if self.rect.bottom < 0:
+            self.kill()
+
         global health
         global deaths
         global enbx
@@ -148,6 +175,15 @@ class Bullet(pygame.sprite.Sprite):
         self.image.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.image.get_rect(center=(player.rect.x+8,player.rect.y+8))
     def update(self):
+        if self.rect.right < 0:
+            self.kill()
+        if self.rect.left > 768:
+            self.kill()
+        if self.rect.top > 720:
+            self.kill()
+        if self.rect.bottom < 0:
+            self.kill()
+
         self.rect.move_ip(8,0)
         if self.rect.right < 0:
             self.kill()
@@ -162,6 +198,12 @@ class EnBullet(pygame.sprite.Sprite):
         self.rect.move_ip(8,0)
         if self.rect.right < 0:
             self.kill()
+        if self.rect.left > 768:
+            self.kill()
+        if self.rect.top > 720:
+            self.kill()
+        if self.rect.bottom < 0:
+            self.kill()
 
 class Block(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -170,7 +212,15 @@ class Block(pygame.sprite.Sprite):
         self.image.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.image.get_rect(center=(x,y))
     def update(self):
-        pass
+        if self.rect.right < 0:
+            self.kill()
+        if self.rect.left > 768:
+            self.kill()
+        if self.rect.top > 720:
+            self.kill()
+        if self.rect.bottom < 0:
+            self.kill()
+
 
 player = Player(275,400)
 players = pygame.sprite.Group()
