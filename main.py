@@ -63,11 +63,11 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.rect.top = block.rect.bottom
 
+        for block in blocks:
+                if self.rect.bottom != block.rect.top:
+                    self.change_y=1
 
-        self.rect.y += self.change_y
-        print self.rect.bottom
-        #if self.rect.bottom < 550:
-            #self.change_y+=1
+
 
 
         """
@@ -176,11 +176,11 @@ class EnBullet(pygame.sprite.Sprite):
             self.kill()
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,x,y):
         super(Block, self).__init__()
         self.image = pygame.image.load('img/explosion.png').convert()
         self.image.set_colorkey((255, 255, 255), RLEACCEL)
-        self.rect = self.image.get_rect(center=(random.randint(0,550-32),450))
+        self.rect = self.image.get_rect(center=(x,y))
     def update(self):
         pass
 
@@ -221,10 +221,11 @@ while True:
                 player.changespeed(0, 3)
         elif event.type == QUIT:
             sys.exit()
-        elif event.type == ADDBLOCK:
+        """elif event.type == ADDBLOCK:
             new_block = Block()
             blocks.add(new_block)
-            all_sprites.add(new_block)
+            all_sprites.add(new_block)"""
+
         #elif event.type == ADDBIGENEMY:
             #new_bigenemy = BigEnemy()
             #enemies.add(new_bigenemy)
@@ -235,7 +236,10 @@ while True:
     exps=-32
     while exps < 700:
         exps=exps+32
-        screen.blit(explosion, (exps,550))
+        block = Block(exps,550)
+        blocks.add(block)
+        all_sprites.add(block)
+
     screen.blit(healthlabel, (500, 10))
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
