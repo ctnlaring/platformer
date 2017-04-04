@@ -17,14 +17,12 @@ enby=0
 jumping=0
 jumptime=0
 ADDENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDENEMY, 550)
-ADDBLOCK = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDBLOCK, 550)
+pygame.time.set_timer(ADDENEMY, 3550)
 ADDBIGENEMY = pygame.USEREVENT + 2
 pygame.time.set_timer(ADDBIGENEMY, 2550)
 font = pygame.font.SysFont("monospace", 55)
 pygame.display.set_caption('Platformer Test')
-explosion=pygame.image.load("img/explosion.png")
+explosion=pygame.image.load("img/block.png")
 explosionsnd = pygame.mixer.Sound('img/explosion.wav')
 laser=pygame.mixer.Sound("img/laser.wav")
 background = pygame.image.load("img/back.png")
@@ -55,17 +53,17 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.rect.left = block.rect.right
 
-        self.rect.y += self.change_y
+        self.rect.y += self.change_y+1
         hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
         for block in hitlist:
-            if self.change_y > 0:
+            if self.change_y >= 0:
                 self.rect.bottom = block.rect.top
             else:
                 self.rect.top = block.rect.bottom
 
-        for block in blocks:
+        """for block in blocks:
                 if self.rect.bottom != block.rect.top:
-                    self.change_y=1
+                    self.change_y=1"""
 
 
 
@@ -104,21 +102,11 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.image.load('img/enemy.png').convert()
         self.image.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.image.get_rect(
-            center=(random.randint(0,550-32),0))
+            center=(720,500))
     def update(self):
         global health
         global deaths
-        self.rect.move_ip(0, 2)
-        if self.rect.bottom > 500:
-            self.kill()
-            explosionsnd.play()
-            for entity in enemies:
-                screen.blit(entity.image, entity.rect)
-            screen.blit(explosion, (player.rect.x-4,player.rect.y))
-            pygame.display.flip()
-            pygame.time.delay(150)
-            health-=1
-            deaths+=1
+        self.rect.move_ip(-2,0)
 
 class BigEnemy(pygame.sprite.Sprite):
     def __init__(self):
@@ -160,7 +148,7 @@ class Bullet(pygame.sprite.Sprite):
         self.image.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.image.get_rect(center=(player.rect.x+8,player.rect.y+8))
     def update(self):
-        self.rect.move_ip(0, -8)
+        self.rect.move_ip(8,0)
         if self.rect.right < 0:
             self.kill()
 
@@ -171,20 +159,20 @@ class EnBullet(pygame.sprite.Sprite):
         self.image.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.image.get_rect(center=(enbx+42,enby+128))
     def update(self):
-        self.rect.move_ip(0, 8)
+        self.rect.move_ip(8,0)
         if self.rect.right < 0:
             self.kill()
 
 class Block(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super(Block, self).__init__()
-        self.image = pygame.image.load('img/explosion.png').convert()
+        self.image = pygame.image.load('img/block.png').convert()
         self.image.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.image.get_rect(center=(x,y))
     def update(self):
         pass
 
-player = Player(275,500)
+player = Player(275,400)
 players = pygame.sprite.Group()
 players.add(player)
 enemies = pygame.sprite.Group()
@@ -200,7 +188,7 @@ while True:
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 sys.exit()
-            #elif event.key == K_SPACE:
+            elif event.key == K_LCTRL:
                 laser.play()
                 shots+=1
                 new_bullet = Bullet()
@@ -212,6 +200,10 @@ while True:
                 player.changespeed(3, 0)
             elif event.key == pygame.K_SPACE:
                 player.changespeed(0, -3)
+            elif event.key == pygame.K_b:
+                block = Block(random.randint(0,550),random.randint(0,550))
+                blocks.add(block)
+                all_sprites.add(block)
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 player.changespeed(3, 0)
@@ -221,10 +213,10 @@ while True:
                 player.changespeed(0, 3)
         elif event.type == QUIT:
             sys.exit()
-        """elif event.type == ADDBLOCK:
-            new_block = Block()
-            blocks.add(new_block)
-            all_sprites.add(new_block)"""
+        elif event.type == ADDENEMY:
+            new_enemy = Enemy()
+            enemies.add(new_enemy)
+            all_sprites.add(new_enemy)
 
         #elif event.type == ADDBIGENEMY:
             #new_bigenemy = BigEnemy()
@@ -249,9 +241,10 @@ while True:
     enbullets.update()
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
+    if pygame.sprite.groupcollide(bullets, blocks, True, True, collided = None):
+        pass
     if pygame.sprite.groupcollide(bullets, enemies, True, True, collided = None):
         kills+=1
-
     if pygame.sprite.groupcollide(enbullets, players, True, True, collided = None):
         health=0
     if health==0:
