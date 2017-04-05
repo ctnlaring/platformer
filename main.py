@@ -37,20 +37,33 @@ class Player(pygame.sprite.Sprite):
         self.change_x = 0
         self.change_y = 0
         self.blocks = None
+        global jumping
+        global jumptime
 
     def changespeed(self, x, y):
         self.change_x += x
         self.change_y += y
 
+    def jump(self):
+        jumping = 12
+        self.change_y = -2
+
     def update(self):
-        if self.rect.right < 0:
-            self.kill()
+        if self.rect.right > 768:
+            self.rect.right = 768
         if self.rect.left > 768:
             self.kill()
         if self.rect.top > 720:
             self.kill()
         if self.rect.bottom < 0:
             self.kill()
+
+        """for block in blocks:
+            if block.rect.top >= self.rect.bottom:
+                if block.rect.right >= self.rect.left:
+                    if block.rect.left <= self.rect.right:"""
+
+        self.rect.y += 1
 
         self.rect.x += self.change_x
         hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
@@ -60,7 +73,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.rect.left = block.rect.right
 
-        self.rect.y += self.change_y+2
+        self.rect.y += self.change_y
         hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
         for block in hitlist:
             if self.change_y >= 0:
@@ -153,6 +166,15 @@ enbullets=pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
+
+#temporary
+exps=-32
+while exps < 500:
+    exps=exps+32
+    block = Block(exps,550)
+    blocks.add(block)
+    all_sprites.add(block)
+
 while True:
     pygame.time.delay(20)
     for event in pygame.event.get():
@@ -170,9 +192,9 @@ while True:
             elif event.key == pygame.K_RIGHT:
                 player.changespeed(3, 0)
             elif event.key == pygame.K_SPACE:
-                player.changespeed(0, -6)
+                player.jump()
             elif event.key == pygame.K_b:
-                block = Block(random.randint(0,550),random.randint(0,550))
+                block = Block(random.randint(0,750),random.randint(0,550))
                 blocks.add(block)
                 all_sprites.add(block)
         elif event.type == pygame.KEYUP:
@@ -180,23 +202,18 @@ while True:
                 player.changespeed(3, 0)
             elif event.key == pygame.K_RIGHT:
                 player.changespeed(-3, 0)
-            elif event.key == pygame.K_SPACE:
-                player.changespeed(0, 6)
+            """elif event.key == pygame.K_SPACE:
+                jumping = 0
+                player.changespeed(0, 6)"""
         elif event.type == QUIT:
             sys.exit()
-        elif event.type == ADDENEMY:
+        """elif event.type == ADDENEMY:
             new_enemy = Enemy()
             enemies.add(new_enemy)
-            all_sprites.add(new_enemy)
+            all_sprites.add(new_enemy)"""
+
 
     screen.blit(background, (0, 0))
-    exps=-32
-    while exps < 700:
-        exps=exps+32
-        block = Block(exps,550)
-        blocks.add(block)
-        all_sprites.add(block)
-
     player.update()
     enemies.update()
     blocks.update()
