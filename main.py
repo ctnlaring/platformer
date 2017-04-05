@@ -1,6 +1,7 @@
 import pygame, sys, random
 from pygame.locals import *
 from fractions import Fraction
+from map0 import map0
 
 pygame.init()
 pygame.mixer.init()
@@ -25,6 +26,7 @@ explosionsnd = pygame.mixer.Sound('img/explosion.wav')
 laser=pygame.mixer.Sound("img/laser.wav")
 background = pygame.image.load("img/back.png")
 healthlabel = font.render(str(health), 1, (255,255,255))
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -63,7 +65,7 @@ class Player(pygame.sprite.Sprite):
                 if block.rect.right >= self.rect.left:
                     if block.rect.left <= self.rect.right:"""
 
-        self.rect.y += 1
+        #self.rect.move_ip(0,1)
 
         self.rect.x += self.change_x
         hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
@@ -166,14 +168,20 @@ enbullets=pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
-
-#temporary
 exps=-32
-while exps < 500:
+while exps < 700:
     exps=exps+32
     block = Block(exps,550)
     blocks.add(block)
     all_sprites.add(block)
+
+for x in map0:
+    if map0[x] == 0:
+        print "nothing here"
+    if map0[x] == 1:
+        block = Block(x,550)
+        blocks.add(block)
+        all_sprites.add(block)
 
 while True:
     pygame.time.delay(20)
@@ -202,16 +210,15 @@ while True:
                 player.changespeed(3, 0)
             elif event.key == pygame.K_RIGHT:
                 player.changespeed(-3, 0)
-            """elif event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE:
                 jumping = 0
-                player.changespeed(0, 6)"""
+                player.changespeed(0, 6)
         elif event.type == QUIT:
             sys.exit()
         """elif event.type == ADDENEMY:
             new_enemy = Enemy()
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)"""
-
 
     screen.blit(background, (0, 0))
     player.update()
