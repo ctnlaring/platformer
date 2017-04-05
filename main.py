@@ -15,8 +15,6 @@ deaths=0
 bshoot=0
 enbx=0
 enby=0
-jumping=0
-jumptime=0
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 3550)
 font = pygame.font.SysFont("monospace", 55)
@@ -39,41 +37,46 @@ class Player(pygame.sprite.Sprite):
         self.change_x = 0
         self.change_y = 0
         self.blocks = None
-        global jumping
-        global jumptime
+        self.jumptime = 0
 
     def changespeed(self, x, y):
         self.change_x += x
         self.change_y += y
 
     def jump(self):
-        jumping = 12
-        self.change_y = -2
+        self.jumptime = 15
 
     def update(self):
         if self.rect.right > 768:
             self.rect.right = 768
-        if self.rect.left > 768:
-            self.kill()
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.top < 0:
+            self.rect.top = 0
         if self.rect.top > 720:
             self.kill()
-        if self.rect.bottom < 0:
-            self.kill()
+            sys.exit
 
         """for block in blocks:
             if block.rect.top >= self.rect.bottom:
                 if block.rect.right >= self.rect.left:
                     if block.rect.left <= self.rect.right:"""
 
-        #self.rect.move_ip(0,1)
+        if self.jumptime > 0:
+            self.jumptime = self.jumptime -1
+            self.rect.move_ip(0,-2)
+        else:
+            self.rect.move_ip(0,3)
 
         self.rect.x += self.change_x
         hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
         for block in hitlist:
             if self.change_x > 0:
-                self.rect.right = block.rect.left
+                pass
+                #self.rect.right = block.rect.left
             else:
-                self.rect.left = block.rect.right
+                pass
+                #self.rect.left = block.rect.right
 
         self.rect.y += self.change_y
         hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
@@ -168,11 +171,9 @@ enbullets=pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
-for x in map0:
-    if map0[x] == 0:
-        print "nothing here"
-    if map0[x] == 1:
-        block = Block(x*32,550)
+for i, blocktype in enumerate(map0):
+    if blocktype == 1:
+        block = Block(i*32,550)
         blocks.add(block)
         all_sprites.add(block)
 
@@ -203,9 +204,8 @@ while True:
                 player.changespeed(3, 0)
             elif event.key == pygame.K_RIGHT:
                 player.changespeed(-3, 0)
-            elif event.key == pygame.K_SPACE:
-                jumping = 0
-                player.changespeed(0, 6)
+            """elif event.key == pygame.K_SPACE:
+                player.changespeed(0, 6)"""
         elif event.type == QUIT:
             sys.exit()
         """elif event.type == ADDENEMY:
