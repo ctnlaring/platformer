@@ -168,18 +168,11 @@ enbullets=pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
-exps=-32
-while exps < 700:
-    exps=exps+32
-    block = Block(exps,550)
-    blocks.add(block)
-    all_sprites.add(block)
-
 for x in map0:
     if map0[x] == 0:
         print "nothing here"
     if map0[x] == 1:
-        block = Block(x,550)
+        block = Block(x*32,550)
         blocks.add(block)
         all_sprites.add(block)
 
