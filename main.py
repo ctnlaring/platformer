@@ -34,14 +34,14 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x,y))
         self.rect.y = y
         self.rect.x = x
-        self.change_x = 0
-        self.change_y = 0
+        self.xspeed = 0
+        self.yspeed = 0
         self.blocks = None
         self.jumptime = 0
 
-    def changespeed(self, x, y):
-        self.change_x += x
-        self.change_y += y
+    def setspeed(self, x, y):
+        self.xspeed = x
+        self.yspeed = y
 
     def jump(self):
         self.jumptime = 15
@@ -64,27 +64,27 @@ class Player(pygame.sprite.Sprite):
 
         if self.jumptime > 0:
             self.jumptime = self.jumptime -1
-            self.rect.move_ip(0,-2)
+            self.yspeed = -3
         else:
-            self.rect.move_ip(0,3)
+            self.yspeed = 3
 
-        self.rect.x += self.change_x
-        hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
-        for block in hitlist:
-            if self.change_x > 0:
-                pass
-                #self.rect.right = block.rect.left
-            else:
-                pass
-                #self.rect.left = block.rect.right
 
-        self.rect.y += self.change_y
-        hitlist = pygame.sprite.groupcollide(blocks, players, False, False, collided = None)
-        for block in hitlist:
-            if self.change_y >= 0:
+        self.rect.x += self.xspeed
+        for block in pygame.sprite.groupcollide(blocks, players, False, False, collided = None):
+            if self.rect.bottom >= block.rect.top:
+                if self.xspeed > 0:
+                    self.rect.right = block.rect.left
+                if self.xspeed < 0:
+                    self.rect.left = block.rect.right
+
+        self.rect.y += self.yspeed
+        for block in pygame.sprite.groupcollide(blocks, players, False, False, collided = None):
+            if self.yspeed > 0:
                 self.rect.bottom = block.rect.top
-            else:
+            if self.yspeed < 0:
                 self.rect.top = block.rect.bottom
+
+
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
@@ -171,11 +171,12 @@ enbullets=pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
-for i, blocktype in enumerate(map0):
-    if blocktype == 1:
-        block = Block(i*32,550)
-        blocks.add(block)
-        all_sprites.add(block)
+for i, linenum in enumerate(map0):
+    for j, blocktype in enumerate(linenum):
+        if blocktype == 1:
+            block = Block(j*32,i*32)
+            blocks.add(block)
+            all_sprites.add(block)
 
 while True:
     pygame.time.delay(20)
@@ -190,9 +191,9 @@ while True:
                 bullets.add(new_bullet)
                 all_sprites.add(new_bullet)
             if event.key == pygame.K_LEFT:
-                player.changespeed(-3, 0)
+                player.setspeed(-3, 0)
             elif event.key == pygame.K_RIGHT:
-                player.changespeed(3, 0)
+                player.setspeed(3, 0)
             elif event.key == pygame.K_SPACE:
                 player.jump()
             elif event.key == pygame.K_b:
@@ -201,17 +202,17 @@ while True:
                 all_sprites.add(block)
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
-                player.changespeed(3, 0)
+                player.setspeed(0, 0)
             elif event.key == pygame.K_RIGHT:
-                player.changespeed(-3, 0)
+                player.setspeed(0, 0)
             """elif event.key == pygame.K_SPACE:
-                player.changespeed(0, 6)"""
+                player.setspeed(0, 6)"""
         elif event.type == QUIT:
             sys.exit()
-        """elif event.type == ADDENEMY:
+        elif event.type == ADDENEMY:
             new_enemy = Enemy()
             enemies.add(new_enemy)
-            all_sprites.add(new_enemy)"""
+            all_sprites.add(new_enemy)
 
     screen.blit(background, (0, 0))
     player.update()
@@ -239,10 +240,7 @@ while True:
         hmrlabel = font.render("HMR - "+str(hmr.numerator)+":"+str(hmr.denominator), 1, (255,255,255))
         screen.blit(background, (0,0))
         screen.blit(font.render("You Failed", 1, (255,255,255)), (50,150))
-        screen.blit(kdrlabel, (50,250))
-        screen.blit(hmrlabel, (50,350))
         pygame.display.flip()
-        pygame.time.delay(5000)
         sys.exit()
 
     pygame.display.flip()
