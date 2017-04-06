@@ -2,11 +2,16 @@ import pygame, sys, random
 from pygame.locals import *
 from fractions import Fraction
 from map0 import map0
+from map1 import map1
+import menu as dm
 
 pygame.init()
 pygame.mixer.init()
 pygame.font.init
 screen = pygame.display.set_mode((768, 720))
+red = 255, 0, 0
+green = 0, 255, 0
+blue = 0, 0, 255
 health=5
 shots=0
 misses=0
@@ -15,6 +20,7 @@ deaths=0
 bshoot=0
 enbx=0
 enby=0
+level=map0
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 3550)
 font = pygame.font.SysFont("monospace", 55)
@@ -44,7 +50,9 @@ class Player(pygame.sprite.Sprite):
         self.yspeed = y
 
     def jump(self):
-        self.jumptime = 15
+        for block in blocks:
+            if self.rect.bottom == block.rect.top:
+                self.jumptime = 8
 
     def update(self):
         if self.rect.right > 768:
@@ -55,7 +63,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.top = 0
         if self.rect.top > 720:
             self.kill()
-            sys.exit
+            sys.exit()
 
         """for block in blocks:
             if block.rect.top >= self.rect.bottom:
@@ -64,9 +72,9 @@ class Player(pygame.sprite.Sprite):
 
         if self.jumptime > 0:
             self.jumptime = self.jumptime -1
-            self.yspeed = -3
+            self.yspeed = -15
         else:
-            self.yspeed = 3
+            self.yspeed = 15
 
 
         self.rect.x += self.xspeed
@@ -83,8 +91,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.bottom = block.rect.top
             if self.yspeed < 0:
                 self.rect.top = block.rect.bottom
-
-
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
@@ -161,7 +167,7 @@ class Block(pygame.sprite.Sprite):
             self.kill()
 
 
-player = Player(275,400)
+player = Player(20,592)
 players = pygame.sprite.Group()
 players.add(player)
 enemies = pygame.sprite.Group()
@@ -171,7 +177,7 @@ enbullets=pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
-for i, linenum in enumerate(map0):
+for i, linenum in enumerate(level):
     for j, blocktype in enumerate(linenum):
         if blocktype == 1:
             block = Block(j*32,i*32)
@@ -183,7 +189,42 @@ while True:
     for event in pygame.event.get():
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
-                sys.exit()
+                screen.fill(blue)
+                pygame.display.update()
+                choose = dm.dumbmenu(screen, [
+                    'Resume',
+                    'Maps',
+                    'Quit Game'], 64,64,None,32,1.4,green,red)
+
+                if choose == 2:
+                    sys.exit()
+                elif choose == 1:
+                    screen.fill(blue)
+                    pygame.display.update()
+                    choose = dm.dumbmenu(screen, [
+                    'Map 1',
+                    "Map2"], 64,64,None,32,1.3,green,red)
+                    if choose == 0:
+                        for block in blocks:
+                                    block.kill()
+                        level = map0
+                        for i, linenum in enumerate(level):
+                            for j, blocktype in enumerate(linenum):
+                                if blocktype == 1:
+                                    block = Block(j*32,i*32)
+                                    blocks.add(block)
+                                    all_sprites.add(block)
+                    elif choose == 1:
+                        for block in blocks:
+                                    block.kill()
+                        level = map1
+                        for i, linenum in enumerate(level):
+                            for j, blocktype in enumerate(linenum):
+                                if blocktype == 1:
+                                    block = Block(j*32,i*32)
+                                    blocks.add(block)
+                                    all_sprites.add(block)
+
             elif event.key == K_LCTRL:
                 laser.play()
                 shots+=1
@@ -205,14 +246,14 @@ while True:
                 player.setspeed(0, 0)
             elif event.key == pygame.K_RIGHT:
                 player.setspeed(0, 0)
-            """elif event.key == pygame.K_SPACE:
-                player.setspeed(0, 6)"""
         elif event.type == QUIT:
             sys.exit()
         elif event.type == ADDENEMY:
             new_enemy = Enemy()
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
+
+
 
     screen.blit(background, (0, 0))
     player.update()
